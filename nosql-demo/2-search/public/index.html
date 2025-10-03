@@ -61,7 +61,7 @@
 		</div>
 		<div id="results" style="margin-top: 16px"></div>
 		<script>
-			const apiUrl = "http://localhost:3000/search"; // your API endpoint
+			const apiUrl = "/search"; // relative works since served from same origin
 			const rawToggle = document.getElementById("rawToggle");
 			const rawInput = document.getElementById("rawInput");
 			const textInput = document.getElementById("textInput");
@@ -106,12 +106,14 @@
 						return;
 					}
 					resultsEl.innerHTML = data
-						.map((d) => {
-							const t = escapeHtml(d.title || "(no title)");
-							const y = escapeHtml(d.year || "?");
-							const g = escapeHtml(d.genre || "");
-							return `<div class="card"><b>${t}</b> (${y}) — ${g}</div>`;
-						})
+						.map(
+							(d) =>
+								`<div class="card"><b>${escapeHtml(
+									d.title || "(no title)"
+								)}</b> (${escapeHtml(
+									d.year || "?"
+								)}) — ${escapeHtml(d.genre || "")}</div>`
+						)
 						.join("");
 				} catch (err) {
 					resultsEl.innerHTML = `<div class="card">Fetch error: ${escapeHtml(
