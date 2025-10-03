@@ -1,10 +1,12 @@
-
-
 const express = require("express");
 const { MongoClient } = require("mongodb");
 const app = express();
 const port = 3000;
 
+const path = require("path");
+
+// serve static files from ./public
+app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 
 const mongoUri = "mongodb://student:student123@127.0.0.1:27017/nosql-search?authSource=nosql-search";
