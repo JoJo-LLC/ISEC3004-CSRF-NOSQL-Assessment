@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>NoSQL Injection Demo</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				margin: 40px;
+				max-width: 760px;
+			}
+			input[type="text"] {
+				width: 100%;
+				padding: 8px;
+				box-sizing: border-box;
+			}
+			textarea {
+				width: 100%;
+				height: 90px;
+				font-family: monospace;
+				box-sizing: border-box;
+			}
+			button {
+				padding: 8px 12px;
+				margin-top: 8px;
+			}
+			.card {
+				padding: 10px;
+				border: 1px solid #ddd;
+				margin: 8px 0;
+				border-radius: 6px;
+			}
+			.warn {
+				color: #b30000;
+				font-weight: 600;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>NoSQL search demo</h1>
+		<p>Search the local <code>movies</code> collection.</p>
+		<label
+			><input id="rawToggle" type="checkbox" /> Use raw JSON input (local
+			demo only)</label
+		>
+		<div style="margin-top: 12px">
+			<input
+				id="textInput"
+				type="text"
+				placeholder="Type movie title (e.g. Inception)"
+			/>
+			<textarea
+				id="rawInput"
+				style="display: none"
+				placeholder='Raw JSON object, e.g. {"title":"Inception"} or {"title":{"$ne":""}}'
+			></textarea>
+		</div>
+		<div>
+			<button id="searchBtn">Search</button>
+			<button id="clearBtn">Clear</button>
+		</div>
+		<div id="results" style="margin-top: 16px"></div>
+		<script>
+			const apiUrl = "http://localhost:3000/search"; // your API endpoint
+			const rawToggle = document.getElementById("rawToggle");
+			const rawInput = document.getElementById("rawInput");
+			const textInput = document.getElementById("textInput");
+			const searchBtn = document.getElementById("searchBtn");
+			const clearBtn = document.getElementById("clearBtn");
+			const resultsEl = document.getElementById("results");
+
+			rawToggle.addEventListener("change", () => {
+				rawInput.style.display = rawToggle.checked ? "block" : "none";
+				textInput.style.display = rawToggle.checked ? "none" : "block";
+			});
+
+			searchBtn.addEventListener("click", async () => {
+				resultsEl.innerHTML = '<div class="card">Searching…</div>';
+				let bodyObj;
+				if (rawToggle.checked) {
+					try {
+						bodyObj = JSON.parse(rawInput.value || "{}");
+					} catch (e) {
+						resultsEl.innerHTML =
+							'<div class="card">Invalid JSON in raw input.</div>';
+						return;
+					}
+				} else {
+					bodyObj = { title: textInput.value || "" };
+				}
+
+				try {
+					const resp = await fetch(apiUrl, {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(bodyObj),
+					});
+					if (!resp.ok) {
+						const txt = await resp.text();
+						resultsEl.innerHTML = `<div class="card">Server error: ${resp.status} ${txt}</div>`;
+						return;
+					}
+					const data = await resp.json();
+					if (!Array.isArray(data) || data.length === 0) {
+						resultsEl.innerHTML = `<div class="card">No results found.</div>`;
+						return;
+					}
+					resultsEl.innerHTML = data
+						.map((d) => {
+							const t = escapeHtml(d.title || "(no title)");
+							const y = escapeHtml(d.year || "?");
+							const g = escapeHtml(d.genre || "");
+							return `<div class="card"><b>${t}</b> (${y}) — ${g}</div>`;
+						})
+						.join("");
+				} catch (err) {
+					resultsEl.innerHTML = `<div class="card">Fetch error: ${escapeHtml(
+						err.message
+					)}</div>`;
+				}
+			});
+
+			clearBtn.addEventListener("click", () => {
+				textInput.value = "";
+				rawInput.value = "";
+				resultsEl.innerHTML = "";
+			});
+
+			function escapeHtml(s) {
+				return String(s).replace(
+					/[&<>"']/g,
+					(m) =>
+						({
+							"&": "&amp;",
+							"<": "&lt;",
+							">": "&gt;",
+							'"': "&quot;",
+							"'": "&#39;",
+						}[m])
+				);
+			}
+		</script>
+	</body>
+</html>
