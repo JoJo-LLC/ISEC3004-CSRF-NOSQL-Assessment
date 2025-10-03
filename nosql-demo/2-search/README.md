@@ -1,22 +1,23 @@
+# 🛡️ NoSQL Injection Demo
 
-
-# 🛡️ NoSQL Injection Demo: 2-search
-
-This project demonstrates a vulnerable **search** feature using MongoDB, intended for security testing and education. Your task is to identify the NoSQL injection vulnerability in this setup and implement a secure mitigation.
-
----
-
-## 🚀 Getting Started
-
-### 📁 1. Navigate to this folder
-
-```bash
-cd nosql-demo/2-search
-```
+This project demonstrates a **vulnerable** and a **secure** MongoDB search implementation using Node.js and Express.  
+It is intended for **local demo and education only** — do not deploy either server to production without proper review.
 
 ---
 
-### 📦 2. Install dependencies (if not already done)
+## 📂 Project Files
+
+-   `server.js` → **Vulnerable server** (accepts raw queries, unsafe).
+-   `server_secure.js` → **Secure server** (sanitized queries, protections applied).
+-   `seed.js` → Seeds the database with sample movies.
+-   `check.js` → Utility to confirm seeded data.
+-   `public/index.html` → Browser UI to test search.
+
+---
+
+## ⚙️ Setup
+
+1. Install dependencies:
 
 ```bash
 npm install
@@ -50,15 +51,22 @@ mongod --dbpath /usr/local/var/mongodb --auth
 
 Make sure MongoDB is **already configured** with:
 
-- Admin user: `admin / admin123`
-- Database user: `student / student123` on the `nosql-search` database
+-   Admin user: `admin / admin123`
+-   Database user: `student / student123` on the `nosql-search` database
 
 ---
 
-### 🖥️ 5. Start the Node.js server
+### 🖥️ 5. Run the Server
+
+#### A. Vulnerable Server (server.js)
 
 ```bash
 node server.js
+```
+#### B. Secure Server (server_secure.js)
+
+```bash
+node server_secure.js
 ```
 
 You should see:
@@ -66,8 +74,7 @@ You should see:
 ```
 ✅ Connected to MongoDB
 🚀 Server running at http://localhost:3000
-```
-
+``
 ---
 
 ## 🧪 Testing the vulnerability
@@ -92,7 +99,7 @@ curl -X POST http://localhost:3000/search \
   -d '{"$where": "true"}'
 ```
 
-If this returns *all* movie data, the app is vulnerable to NoSQL injection.
+If this returns _all_ movie data, the app is vulnerable to NoSQL injection.
 
 ---
 
