@@ -9,7 +9,6 @@ let accounts = {
   'attacker': 500
 };
 
-// What to comment here
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
@@ -25,7 +24,7 @@ app.use(session({
 }));
 
 // Shows login page
-app.get('/', (res) => {
+app.get('/', (req, res) => {
   res.send(`
     <html>
       <body>
@@ -101,7 +100,7 @@ app.post('/transfer', (req, res) => {
 });
 
 // Shows account balances
-app.get('/balance', (res) => {
+app.get('/balance', (req, res) => {
   res.json(accounts);
 });
 

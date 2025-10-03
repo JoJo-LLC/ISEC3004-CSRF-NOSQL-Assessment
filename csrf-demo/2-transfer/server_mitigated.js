@@ -9,24 +9,23 @@ let accounts = {
   'attacker': 500
 };
 
-// What to comment here
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// Defining session ; Note : same site mitigiation missing here
+// Defining session
 app.use(session({
   secret: 'very-secure-secret',
   resave: false,
   saveUninitialized: false,
   cookie: { 
     httpOnly: true,
-    secure: false,
-    sameSite: true
+    secure: true,
+    sameSite: 'strict'
   }
 }));
 
 // Shows login page
-app.get('/', (res) => {
+app.get('/', (req, res) => {
   res.send(`
     <html>
       <body>
@@ -102,7 +101,7 @@ app.post('/transfer', (req, res) => {
 });
 
 // Shows account balances
-app.get('/balance', (res) => {
+app.get('/balance', (req, res) => {
   res.json(accounts);
 });
 

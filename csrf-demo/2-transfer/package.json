@@ -1,7 +1,7 @@
 {
-  "name": "2-withdraw",
+  "name": "2-transfer",
   "version": "1.0.0",
-  "description": "This project demonstrates a CSRF (Cross-Site Request Forgery) vulnerability in a simple withdraw feature. The attacker can trick the victim into unknowingly transferring money from their account to the attacker’s account by auto-submitting a hidden form.",
+  "description": "This demonstrates a CSRF attack and mitigation techniques on a banking application's transfer function",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
