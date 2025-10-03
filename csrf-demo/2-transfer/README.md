@@ -14,7 +14,7 @@
 
 ### Start Servers
 1. node server_vulnerable.js
-2. node atttack.js
+2. node attack.js
 
 ### Testing Attack
 
