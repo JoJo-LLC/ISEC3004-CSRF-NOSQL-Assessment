@@ -39,7 +39,7 @@ function validateToken(req, res, next) {
   const sessionToken = req.session.csrfToken; // Retrieving session token
   
   if (!embeddedToken || embeddedToken !== sessionToken) { 
-    return res.status(403).send('Failed to validate csrf token'); // Triggers failure preventing transacation
+    return res.status(403).send('Failed to validate csrf token'); // Triggers failure preventing transaction
   }
   
   next(); 
