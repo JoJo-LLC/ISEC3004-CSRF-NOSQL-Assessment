@@ -1,0 +1,5 @@
+{"$where":"true"}
+{"title":{"$ne":""}}
+{ "$regex": ".*" }
+{ "title": "Inception" }
+{ "year": { "$lt": 2000 }}
