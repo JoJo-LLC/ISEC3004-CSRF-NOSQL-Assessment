@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const PORT = 3003;
 
-// Repersents a basic attack script, typically would be clicked through a nefarious email 
+// Represents a basic attack script, typically would be clicked through a nefarious email 
 // or website. Takes advantage of preauthenticated session.
 app.get('/', (req, res) => {
   res.send(`
