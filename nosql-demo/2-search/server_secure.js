@@ -39,7 +39,7 @@ function sanitizeQuery(input) {
 
 MongoClient.connect(mongoUri)
 	.then((client) => {
-		console.log("✅ Connected to MongoDB");
+		console.log("Connected to MongoDB");
 		const db = client.db("nosql-search");
 		const movies = db.collection("movies");
 
@@ -56,9 +56,9 @@ MongoClient.connect(mongoUri)
 		});
 
 		app.listen(port, () => {
-			console.log(`🚀 Secure server running at http://localhost:${port}`);
+			console.log(`Secure server running at http://localhost:${port}`);
 		});
 	})
 	.catch((err) => {
-		console.error("❌ MongoDB connection error:", err);
+		console.error("MongoDB connection error:", err);
 	});

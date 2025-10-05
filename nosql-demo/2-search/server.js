@@ -13,14 +13,14 @@ const mongoUri = "mongodb://student:student123@127.0.0.1:27017/nosql-search?auth
 
 MongoClient.connect(mongoUri)
   .then(client => {
-    console.log("✅ Connected to MongoDB");
+    console.log("Connected to MongoDB");
 
     const db = client.db("nosql-search");
     const movies = db.collection("movies");
 
     // Vulnerable search endpoint
     app.post("/search", async (req, res) => {
-      const query = req.body;
+      const query = req.body; // <-- trusts client input directly
       try {
         const results = await movies.find(query).toArray();
         res.json(results);
@@ -30,9 +30,9 @@ MongoClient.connect(mongoUri)
     });
 
     app.listen(port, () => {
-      console.log(`🚀 Server running at http://localhost:${port}`);
+      console.log(`Server running at http://localhost:${port}`);
     });
   })
   .catch(err => {
-    console.error("❌ MongoDB connection error:", err);
+    console.error("MongoDB connection error:", err);
   });

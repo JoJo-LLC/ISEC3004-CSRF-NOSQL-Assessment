@@ -23,9 +23,9 @@ async function seedDB() {
       { title: 'Parasite', genre: 'Thriller', year: 2019 }
     ]);
 
-    console.log('✅ Database seeded with movie data.');
+    console.log('Database seeded with movie data.');
   } catch (err) {
-    console.error('❌ Error seeding database:', err);
+    console.error('Error seeding database:', err);
   } finally {
     await client.close();
   }

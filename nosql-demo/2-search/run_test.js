@@ -7,7 +7,7 @@ const URL = process.argv[3] || "http://localhost:3000/search";
 
 (async () => {
 	if (!fs.existsSync(FILE)) {
-		console.error("❌ Payload file not found:", FILE);
+		console.error("Payload file not found:", FILE);
 		process.exit(1);
 	}
 
@@ -23,7 +23,7 @@ const URL = process.argv[3] || "http://localhost:3000/search";
 		console.log(`Payload: ${line}`);
 		try {
 			const res = await axios.post(URL, JSON.parse(line));
-			console.log("✅ Response:", res.data);
+			console.log("Response:", res.data);
 		} catch (err) {
 			if (err.response) {
 				console.log(
@@ -31,7 +31,7 @@ const URL = process.argv[3] || "http://localhost:3000/search";
 					JSON.stringify(err.response.data, null, 2)
 				);
 			} else {
-				console.log("❌ Error:", err.message);
+				console.log("Error:", err.message);
 			}
 		}
 		await new Promise((r) => setTimeout(r, 500));
