@@ -12,9 +12,9 @@ let accounts = {
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// Defining session ; Note : same site mitigiation missing here
+// Defining session 
 app.use(session({
-  secret: 'very-secure-secret',
+  secret: 'secret',
   resave: false,
   saveUninitialized: false,
   cookie: { 
@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
   res.send(`
     <html>
       <body>
-        <h2>Bank Login</h2>
+        <h1>Login</h1>
         <form action="/login" method="POST">
           <input type="text" name="username" placeholder="Username" required><br><br>
           <input type="password" name="password" placeholder="Password" required><br><br>
@@ -50,9 +50,9 @@ app.post('/login', (req, res) => {
     res.send(`
       <html>
         <body>
-          <h2>Hello ${username}!</h2>
+          <h1>Hello ${username}!</h1>
           <p>Account Balance: ${accounts[username]}</p>
-          <h3>Transfer Funds:</h3>
+          <h2>Transfer Funds:</h2>
           <form action="/transfer" method="POST"> 
             <input type="text" name="recipient" placeholder="Transfer to" required><br><br>
             <input type="number" name="amount" placeholder="Amount" required><br><br>
@@ -96,7 +96,7 @@ app.post('/transfer', (req, res) => {
   accounts[sender] -= parseInt(amount);
   accounts[recipient] = (accounts[recipient] || 0) + parseInt(amount);
 
-  res.send(`Transferred: $${amount} from ${sender} to ${recipient}`);
+  res.send(`Transferred: $${amount} from ${sender} to ${recipient}`); // shows successful transfer details
 });
 
 // Shows account balances
