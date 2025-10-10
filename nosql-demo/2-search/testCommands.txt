@@ -1,0 +1,12 @@
+{"$where":"true"}
+{"title":{"$ne":""}}
+{"$regex": ".*"}
+{"title":"Inception"}
+{"year":{"$lt":2000}}
+{"title":{"$gt":""}}
+{"genre":{"$in":["Sci-Fi","Crime"]}}
+{"year":{"$gte":1990,"$lte":2010}}
+{"$or":[{"title":"Nonexistent"},{"year":{"$gt":0}}]}
+{"nonexistentfield":{"$exists":true}}
+{"$expr":{"$eq":[{"$add":[1,1]},2]}}
+{"username":{"$ne":null},"password":{"$ne":null}}

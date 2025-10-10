@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>🏦 Victim Bank — Deposit Page</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #f4f8fb;
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        background-color: #1a73e8;
+        color: white;
+        padding: 1rem;
+        text-align: center;
+      }
+      .container {
+        max-width: 500px;
+        margin: 2rem auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      .section {
+        margin-bottom: 2rem;
+      }
+      .section h2 {
+        margin-top: 0;
+      }
+      input, button {
+        padding: 0.5rem;
+        margin: 0.3rem 0;
+        width: 100%;
+        font-size: 1rem;
+      }
+      button {
+        background-color: #1a73e8;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .log-section {
+        background: #000;
+        color: #0f0;
+        font-family: monospace;
+        padding: 1rem;
+        border-radius: 5px;
+        margin: 2rem auto;
+        max-width: 500px;
+        height: 200px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>🏦 Victim Bank</h1>
+    </header>
+
+    <div class="container">
+      <div class="section">
+        <h2>Account Overview</h2>
+        <p><strong>Your Current Balance:</strong> <span id="userBalance">$—</span></p>
+        <button onclick="fetchBalance()">🔄 Refresh Balance</button>
+      </div>
+
+      <div class="section">
+        <h2>Make a Transfer</h2>
+        <form onsubmit="makeDeposit(event)">
+          <label for="to">Recipient Account:</label>
+          <input type="text" id="to" name="to" required>
+
+          <label for="amount">Amount ($):</label>
+          <input type="number" id="amount" name="amount" required min="1">
+
+          <button type="submit">💸 Deposit</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="log-section" id="logBox">
+      > 🛠️ Developer Panel (Demo only)<br>
+    </div>
+
+    <script>
+      let csrfToken = '';
+
+      function log(msg) {
+        const box = document.getElementById('logBox');
+        box.innerHTML += "&gt; " + msg + "<br>";
+        box.scrollTop = box.scrollHeight;
+      }
+
+      async function fetchCSRFToken() {
+        try {
+          const res = await fetch('http://localhost:3001/csrf-token', {
+            credentials: 'include'
+          });
+          const data = await res.json();
+          csrfToken = data.csrfToken;
+          log("🔐 CSRF token received.");
+        } catch (err) {
+          log("❌ Failed to fetch CSRF token.");
+        }
+      }
+
+      async function fetchBalance() {
+        log("Fetching real balance...");
+        try {
+          const res = await fetch('http://localhost:3001/balance', {
+            credentials: 'include'
+          });
+          const json = await res.json();
+          document.getElementById('userBalance').textContent = "$" + json.victim;
+          log("Balance fetched: victim = $" + json.victim + ", attacker = $" + json.attacker);
+        } catch (err) {
+          log("❌ Failed to fetch balance.");
+        }
+      }
+
+      async function makeDeposit(event) {
+        event.preventDefault();
+        const to = document.getElementById('to').value;
+        const amount = document.getElementById('amount').value;
+        log("Submitting deposit to '" + to + "' for $" + amount + "...");
+        try {
+          const res = await fetch('http://localhost:3001/deposit', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'CSRF-Token': csrfToken
+            },
+            credentials: 'include',
+            body: JSON.stringify({ to, amount })
+          });
+          const text = await res.text();
+          log("✅ Server response: " + text);
+        } catch (err) {
+          log("❌ Deposit failed.");
+        }
+      }
+
+      // Auto fetch on load
+      fetchBalance();
+      fetchCSRFToken();
+    </script>
+  </body>
+</html>
