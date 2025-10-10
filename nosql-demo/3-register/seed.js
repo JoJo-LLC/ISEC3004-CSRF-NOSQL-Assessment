@@ -4,7 +4,7 @@
  *
  * Usage:
  *   1) `cd ~/Documents/CYBERsec/ISEC3004-Assessment/nosql-demo/3-register`
- *   2) install deps (if not already installed in this folder):
+ *   2) install dependencies (if not already installed in this folder):
  *        npm install mongodb bcryptjs
  *   3) run:
  *        node seed.js
@@ -18,7 +18,7 @@
 const { MongoClient } = require('mongodb');
 const bcrypt = require('bcryptjs');
 
-const DEFAULT_URI = 'mongodb://admin:admin123@127.0.0.1:27017/?authSource=admin';
+const DEFAULT_URI = 'mongodb://127.0.0.1:27017/';
 const MONGO_URI = process.env.MONGO_URI || DEFAULT_URI;
 const DBNAME = process.env.DBNAME || 'nosql-register';
 
@@ -66,7 +66,7 @@ const DBNAME = process.env.DBNAME || 'nosql-register';
 
     // Insert documents
     const res = await users.insertMany(docs);
-    console.log(`✅ Database seeded with ${res.insertedCount} users.`);
+    console.log(`Database seeded with ${res.insertedCount} users.`);
 
     // Print a compact summary (usernames and roles only)
     const summary = await users.find({}, { projection: { username: 1, role: 1, _id: 0 } }).toArray();
@@ -75,7 +75,7 @@ const DBNAME = process.env.DBNAME || 'nosql-register';
     // If you want an app-level admin user (for server auth) you already created a MongoDB admin user via mongosh
     // This script seeds application-level users (documents in 'users' collection).
   } catch (err) {
-    console.error('❌ Seed failed:', err);
+    console.error('Seed failed:', err);
     process.exitCode = 1;
   } finally {
     await client.close();
