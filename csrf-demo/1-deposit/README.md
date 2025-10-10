@@ -1,5 +1,3 @@
-
-
 # CSRF & NoSQL Demo — 1-deposit
 
 **Purpose:** a compact, hands-on demo that shows a Cross‑Site Request Forgery (CSRF) vulnerability, how an attacker can exploit it, and how the issue can be mitigated. This folder contains a vulnerable demo and a patched server so you can show both the exploit and the fix during a live presentation.
@@ -74,16 +72,18 @@ Stop the vulnerable server (Ctrl+C in Terminal A), then start the patched server
 
 ```bash
 node server_patched.js
-# Expect: "🔐 CSRF-Protected Server running at http://localhost:3001"
+# Expect: "🛡️ Double Submit Cookie Server running at http://localhost:3001"
 ```
 
 **Important:** Use an Incognito window or clear cookies (visit `http://localhost:3001/reset-cookie`) so there’s no stale session cookie.
 
-**Demo flow (patched):**
-1. Open `http://localhost:8001/index.html` — the Developer Panel should log `🔐 CSRF token received.`  
-2. Open `http://localhost:8001/attacker.html` — the attacker will attempt the request, but the patched server will block it (HTTP 403). The attacker page's log will show a clear message like:  
-   `❌ CSRF attack blocked (HTTP 403) — the server rejected this request due to missing/invalid CSRF token.`  
-3. Return to `index.html` and click **Refresh Balance** — balances remain unchanged.
+**Demo flow (patched — Double Submit Cookie protection):**
+1. Open `http://localhost:8001/index.html` — the Developer Panel logs your balance.
+2. Submit a deposit with **Simulate CSRF failure unchecked** — the request succeeds (token matches).
+3. Check **Simulate CSRF failure**, then submit again — the server blocks it (403). You’ll see:
+   - `🚫 CSRF blocked: Double Submit check failed`
+   - `🛡️ Server blocked this request (HTTP 403): CSRF protection via Double Submit Cookie was triggered.`
+4. Open `http://localhost:8001/attacker.html` — the attacker also gets a 403, proving the protection stops external forged requests.
 
 ---
 
@@ -121,11 +121,9 @@ node server_patched.js
 ## 🔐 What the patch demonstrates
 
 The patched server uses multiple layers:
-- `SameSite=Strict` cookie attributes (prevents cookies being sent cross-site)  
-- CSRF token (`csurf`) validated on sensitive POSTs  
-- Origin header check to reject requests from unknown origins
-
-This demonstrates defense in depth: even if one layer is misconfigured, others still provide protection.
+- `SameSite=Strict` cookie attributes to prevent automatic cross-site cookie sending.
+- A CSRF token stored in a cookie and manually echoed in a custom header (Double Submit Cookie method).
+- Server-side middleware that blocks requests if the cookie and header values do not match.
 
 ---
 
@@ -133,8 +131,8 @@ This demonstrates defense in depth: even if one layer is misconfigured, others s
 
 - What is CSRF? — a forged request that leverages the victim's authenticated session.  
 - Why it works — browsers send cookies automatically for the target origin. If the server trusts any POST with a valid session cookie, an attacker can forge actions.  
-- How we fixed it — add a token and SameSite cookies, and validate origin.  
-- Real-world mitigations — use CSRF tokens, `SameSite` cookies, require user interaction or re‑authentication for sensitive actions.
+- How we fixed it — we implemented the Double Submit Cookie pattern: a random token is stored in a cookie and must be sent back in a header. The server compares both values to validate the request.
+- Real-world mitigations — use CSRF tokens with SameSite cookies, Double Submit pattern, or CSRF middleware such as `csurf` in session-based apps.
 
 ---
 

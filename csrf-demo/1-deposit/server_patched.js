@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const csrf = require('csurf');
 
 // Middleware to check origin header
 function checkOrigin(req, res, next) {
@@ -23,9 +22,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-// Setup CSRF protection using cookies
-const csrfProtection = csrf({ cookie: true });
-
 // Middleware to simulate session
 app.use((req, res, next) => {
   // Simulate cookie-based session
@@ -33,11 +29,24 @@ app.use((req, res, next) => {
     httpOnly: true,
     sameSite: 'Strict' // Prevent cross-site usage of this cookie
   });
+  if (!req.cookies.csrfToken) {
+    const token = Math.random().toString(36).substring(2);
+    res.cookie('csrfToken', token);
+  }
   next();
 });
 
-app.get('/csrf-token', csrfProtection, (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
+function doubleSubmitCheck(req, res, next) {
+  const cookieToken = req.cookies.csrfToken;
+  const headerToken = req.headers['x-csrf-token'];
+  if (!cookieToken || !headerToken || cookieToken !== headerToken) {
+    return res.status(403).send('🚫 CSRF blocked: Double Submit check failed.');
+  }
+  next();
+}
+
+app.get('/csrf-token', (req, res) => {
+  res.json({ csrfToken: req.cookies.csrfToken });
 });
 
 const accounts = {
@@ -45,11 +54,11 @@ const accounts = {
   attacker: 2500
 };
 
-app.get('/balance', checkOrigin, csrfProtection, (req, res) => {
+app.get('/balance', checkOrigin, (req, res) => {
   res.json(accounts);
 });
 
-app.post('/deposit', checkOrigin, csrfProtection, (req, res) => {
+app.post('/deposit', checkOrigin, doubleSubmitCheck, (req, res) => {
   const { to, amount } = req.body;
   const amt = parseInt(amount);
 
@@ -91,5 +100,5 @@ app.get('/reset-cookie', (req, res) => {
 });
 
 app.listen(3001, () => {
-  console.log('🔐 CSRF-Protected Server running at http://localhost:3001');
+  console.log('🛡️ Double Submit Cookie Server running at http://localhost:3001');
 });

